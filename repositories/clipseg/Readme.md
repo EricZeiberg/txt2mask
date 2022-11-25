@@ -1,7 +1,10 @@
 # Image Segmentation Using Text and Image Prompts
 This repository contains the code used in the paper ["Image Segmentation Using Text and Image Prompts"](https://arxiv.org/abs/2112.10003).
 
-**The Paper has been accepted to CVPR 2022!**
+**November 2022:** CLIPSeg has been integrated into the [HuggingFace Transformers library](https://huggingface.co/docs/transformers/main/en/model_doc/clipseg). Thank you, [NielsRogge](https://github.com/NielsRogge)!  
+**September 2022:** We released new weights for fine-grained predictions (see below for details).  
+**March 2022:** The Paper has been accepted to CVPR 2022!
+
 
 <img src="overview.png" alt="drawing" height="200em"/>
 
@@ -44,10 +47,27 @@ git clone https://github.com/juhongm999/hsnet.git
 
 ### Weights
 
-The MIT license does not apply to these weights.
+The MIT license does not apply to these weights. 
 
-- [CLIPSeg-D64](https://github.com/timojl/clipseg/raw/master/weights/rd64-uni.pth) (4.1MB, without CLIP weights)
-- [CLIPSeg-D16](https://github.com/timojl/clipseg/raw/master/weights/rd16-uni.pth) (1.1MB, without CLIP weights)
+We provide three model weights, for D=64 (2x, ~4MB each) and D=16 (~1MB).
+```
+wget https://owncloud.gwdg.de/index.php/s/ioHbRzFx6th32hn/download -O weights.zip
+unzip -d weights -j weights.zip
+```
+
+#### New Fine-grained Weights
+We introduced a more complex module for transforming tokens into predictions that allow for more refined predictions (in contrast to the square-like predictions of other weights). Corresponding weights are available in the weight download above called `rd64-uni-refined.pth`.
+They can be loaded by:
+```python
+model = CLIPDensePredT(version='ViT-B/16', reduce_dim=64, complex_trans_conv=True)
+model.load_state_dict(torch.load('weights/rd64-uni-refined.pth'), strict=False)
+```
+
+See below for a direct comparison of the new fine-grained weights (top) and the old weights (below).  
+<img src="sample_rd64_refined.png" alt="drawing" height="80em"/>  
+<img src="sample_rd64.png" alt="drawing" height="80em"/>
+
+
 
 ### Training and Evaluation
 

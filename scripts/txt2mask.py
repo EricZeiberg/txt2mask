@@ -55,7 +55,7 @@ class Script(scripts.Script):
 			return (cv2.cvtColor(numpy.array(img), cv2.COLOR_RGB2BGR))
 		def gray_to_pil(img):
 			return (Image.fromarray(cv2.cvtColor(img,cv2.COLOR_GRAY2RGBA)))
-		
+
 		def center_crop(img,new_width,new_height):
 			width, height = img.size   # Get dimensions
 
@@ -103,25 +103,25 @@ class Script(scripts.Script):
 
 		def get_mask():
 			# load model
-			model = CLIPDensePredT(version='ViT-B/16', reduce_dim=64)
+			model = CLIPDensePredT(version='ViT-B/16', reduce_dim=64, complex_trans_conv=True)
 			model.eval();
 			model_dir = "./repositories/clipseg/weights"
 			os.makedirs(model_dir, exist_ok=True)
-			d64_file = f"{model_dir}/rd64-uni.pth"
+			d64_file = f"{model_dir}/rd64-uni-refined.pth"
 			d16_file = f"{model_dir}/rd16-uni.pth"
 			delimiter_string = "|"
-			
+
 			# Download model weights if we don't have them yet
 			if not os.path.exists(d64_file):
 				print("Downloading clipseg model weights...")
-				download_file(d64_file,"https://owncloud.gwdg.de/index.php/s/ioHbRzFx6th32hn/download?path=%2F&files=rd64-uni.pth")
+				download_file(d64_file,"https://owncloud.gwdg.de/index.php/s/ioHbRzFx6th32hn/download?path=%2F&files=rd64-uni-refined.pth")
 				download_file(d16_file,"https://owncloud.gwdg.de/index.php/s/ioHbRzFx6th32hn/download?path=%2F&files=rd16-uni.pth")
-				# Mirror: 
+				# Mirror:
 				# https://github.com/timojl/clipseg/raw/master/weights/rd64-uni.pth
 				# https://github.com/timojl/clipseg/raw/master/weights/rd16-uni.pth
-			
+
 			# non-strict, because we only stored decoder weights (not CLIP weights)
-			model.load_state_dict(torch.load(d64_file, map_location=torch.device('cuda')), strict=False);			
+			model.load_state_dict(torch.load(d64_file, map_location=torch.device('cuda')), strict=False);
 
 			transform = transforms.Compose([
 				transforms.ToTensor(),
@@ -168,9 +168,9 @@ class Script(scripts.Script):
 				new_height = round(new_width / aspect_ratio)
 				final_img = final_img.resize((new_width,new_height))
 				final_img = center_crop(final_img,p.init_images[0].width,p.init_images[0].height)
-		
+
 			return (final_img)
-						
+
 
 		# Set up processor parameters correctly
 		p.mode = 1
